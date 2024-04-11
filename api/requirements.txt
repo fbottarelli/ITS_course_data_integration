@@ -1,2 +1,7 @@
-spotipy
+numpy
+pandas
+requests
 python-dotenv
+
+
+spotipy
