@@ -44,35 +44,38 @@ def get_top_tracks(artist_id):
     
     track_data = []
     for track in tracks:
-        track_details = {
-            'name': track['name'],
-            'album': track['album']['name'],
-            'artist': track['artists'][0]['name'],
-            'artist_id': track['artists'][0]['id'],
-            # 'artist_genres': track['artists'][0]['genres'],
-            'release_date': track['album']['release_date'],
-            'popularity': track['popularity'],
-            'album_cover': track['album']['images'][0]['url'] if track['album']['images'] else None,
-            'track_id': track['id']
-        }
-        # Aggiungi le audio features per ogni traccia
-        track_features = get_track_features(track['id'])
-        if track_features:
-            track_details.update(track_features)
-        
-        track_data.append(track_details)
+        if track["artists"][0]["id"] == artist_id:
+            track_details = {
+                'name': track['name'],
+                'album': track['album']['name'],
+                'artist': track['artists'][0]['name'],
+                'artist_id': track['artists'][0]['id'],
+                'release_date': track['album']['release_date'],
+                'popularity': track['popularity'],
+                'album_cover': track['album']['images'][0]['url'] if track['album']['images'] else None,
+                'track_id': track['id']
+            }
+            # Aggiungi le audio features per ogni traccia
+            track_features = get_track_features(track['id'])
+            if track_features:
+                track_details.update(track_features)
+            
+            track_data.append(track_details)
     
     return track_data
 
 @app.route('/artists_comparison', methods=['POST'])
 def artist_top_tracks():
     data = request.json
-    artist1_id = data.get('artist1_id')
-    artist2_id = data.get('artist2_id')
-    # Ottieni info sugli artisti
+    artist1_name = data.get('artist1_name')
+    artist2_name = data.get('artist2_name')
+    # ricaviamo gli id degli artisti dai nomi inseriti
+    artist1_id = sp.search(q=artist1_name, type='artist')['artists']['items'][0]['id']
+    artist2_id = sp.search(q=artist2_name, type='artist')['artists']['items'][0]['id']
+    # Ottieniamo info sugli artisti
     artist1_info = get_artist_info(artist1_id)
     artist2_info = get_artist_info(artist2_id)
-    # Ottieni i top tracks per entrambi gli artisti
+    # Ottieniamo i top tracks per entrambi gli artisti
     artist1_tracks = get_top_tracks(artist1_id)
     artist2_tracks = get_top_tracks(artist2_id)
     

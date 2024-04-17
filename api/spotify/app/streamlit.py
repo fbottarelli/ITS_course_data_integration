@@ -3,18 +3,21 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def get_artist_comparison(artist1_id, artist2_id):
+def get_artist_comparison(artist1_name, artist2_name):
     # Invia una richiesta POST all'API Flask con gli ID degli artisti
-    response = requests.post("http://localhost:5000/artists_comparison", json={"artist1_id": artist1_id, "artist2_id": artist2_id})
+    response = requests.post("http://localhost:5000/artists_comparison", json={"artist1_name": artist1_name, "artist2_name": artist2_name})
     if response.status_code == 200:
         return response.json()
     else:
         st.error("Errore nella ricezione dei dati dall'API")
         return None
 
-def plot_features_comparison(data_tracks, artist1_id, artist2_id):
+def plot_features_comparison(data_tracks, artist1_name, artist2_name):
     # Crea un DataFrame dai dati delle tracce
     df = pd.DataFrame(data_tracks)
+    # salviamo gli ID degli artisti per colorare i punti nel grafico
+    artist1_id = df[df['artist'] == artist1_name]['artist_id'].iloc[0]
+    artist2_id = df[df['artist'] == artist2_name]['artist_id'].iloc[0]
     
     # Crea lo scatter plot
     fig, ax = plt.subplots()
@@ -48,12 +51,12 @@ def show_average_features(data_tracks):
 def main():
     st.title("Confronto Artisti su Spotify")
 
-    artist1_id = st.text_input("Inserisci l'ID Spotify del primo artista")
-    artist2_id = st.text_input("Inserisci l'ID Spotify del secondo artista")
+    artist1_name = st.text_input("Inserisci il nome del primo artista")
+    artist2_name = st.text_input("Inserisci il nome del secondo artista")
 
     if st.button("Confronta"):
-        if artist1_id and artist2_id:
-            data = get_artist_comparison(artist1_id, artist2_id)
+        if artist1_name and artist2_name:
+            data = get_artist_comparison(artist1_name, artist2_name)
             if data:
                 # Visualizzazione delle immagini degli artisti
                 artist1, artist2 = data['data_artists']
@@ -72,7 +75,7 @@ def main():
                     st.markdown(f"**Generi:** {', '.join(artist2['genres'])}")
                 
                 # Visualizzazione del grafico delle loudness
-                plot_features_comparison(data['data_tracks'], artist1_id, artist2_id)
+                plot_features_comparison(data['data_tracks'], artist1_name, artist2_name)
                 # Mostra la tabella delle medie delle caratteristiche audio
                 show_average_features(data['data_tracks'])
         else:

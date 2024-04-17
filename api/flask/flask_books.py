@@ -5,7 +5,9 @@ app = Flask(__name__)
 # Dummy database of books as a list of dictionaries
 books = [
     {'id': 1, 'title': '1984', 'author': 'George Orwell', 'year': 1949},
-    {'id': 2, 'title': 'To Kill a Mockingbird', 'author': 'Harper Lee', 'year': 1960}
+    {'id': 2, 'title': 'To Kill a Mockingbird', 'author': 'Harper Lee', 'year': 1960},
+    {'id': 3, 'title': 'The Great Gatsby', 'author': 'F. Scott Fitzgerald', 'year': 1925},
+    {'id': 4, 'title': 'Dune', 'author': 'Frank Herbert', 'year': 1965},
 ]
 
 # Route to get all books
@@ -16,7 +18,11 @@ def get_books():
 # Route to get a specific book by ID
 @app.route('/books/<int:book_id>', methods=['GET'])
 def get_book(book_id):
-    book = next((book for book in books if book['id'] == book_id), None)
+    book = None
+    for b in books:
+        if b['id'] == book_id:
+            book = b
+            break
     if book is None:
         return jsonify({'message': 'Book not found'}), 404
     return jsonify(book)
